@@ -1,0 +1,166 @@
+<div class="breathing-widget-container">
+  <style>
+    .breathing-widget-container {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #f0f7f4 0%, #e1edf5 100%);
+      border-radius: 16px;
+      padding: 32px 20px;
+      text-align: center;
+      max-width: 440px;
+      margin: 20px auto;
+      box-shadow: 0 10px 25px rgba(44, 82, 130, 0.08);
+      border: 1px solid #d8e5df;
+    }
+    .breathing-widget-container h3 {
+      color: #1f3a4d;
+      margin-bottom: 6px;
+      font-size: 1.3rem;
+    }
+    .breathing-widget-container p.subtitle {
+      color: #557080;
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+    .circle-wrap {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      margin: 0 auto 24px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .breathing-circle {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      background: #4a7c59;
+      border-radius: 50%;
+      opacity: 0.2;
+      transition: transform 1s ease-in-out;
+    }
+    .breathing-text-box {
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #phase-label {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #2c5282;
+      margin-bottom: 2px;
+    }
+    #timer-count {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #1f3a4d;
+    }
+    .breath-btn {
+      background-color: #2c5282;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .breath-btn:hover {
+      background-color: #1f3a4d;
+    }
+  </style>
+
+  <h3>4-7-8 Somatic Breathing Pacer</h3>
+  <p class="subtitle">Regulate your nervous system and release tension.</p>
+
+  <div class="circle-wrap">
+    <div class="breathing-circle" id="bCircle"></div>
+    <div class="breathing-text-box">
+      <span id="phase-label">Ready</span>
+      <span id="timer-count">Press Start</span>
+    </div>
+  </div>
+
+  <button class="breath-btn" id="startBreathBtn" onclick="toggleBreathing()">Start Exercise</button>
+
+  <script>
+    let isRunning = false;
+    let breathInterval = null;
+
+    function toggleBreathing() {
+      const btn = document.getElementById('startBreathBtn');
+      if (isRunning) {
+        stopBreathing();
+        btn.textContent = "Start Exercise";
+      } else {
+        startBreathingSequence();
+        btn.textContent = "Stop";
+      }
+    }
+
+    function startBreathingSequence() {
+      isRunning = true;
+      runCycle();
+    }
+
+    function runCycle() {
+      if (!isRunning) return;
+      
+      const label = document.getElementById('phase-label');
+      const count = document.getElementById('timer-count');
+      const circle = document.getElementById('bCircle');
+
+      // 1. INHALE for 4 seconds
+      label.textContent = "Inhale through nose";
+      circle.style.transform = "scale(1.35)";
+      circle.style.background = "#4a7c59";
+      runCountdown(4, () => {
+        if (!isRunning) return;
+        
+        // 2. HOLD for 7 seconds
+        label.textContent = "Hold breath";
+        circle.style.transform = "scale(1.35)";
+        circle.style.background = "#d97706";
+        runCountdown(7, () => {
+          if (!isRunning) return;
+          
+          // 3. EXHALE for 8 seconds
+          label.textContent = "Exhale slowly (whoosh)";
+          circle.style.transform = "scale(0.85)";
+          circle.style.background = "#2b6cb0";
+          runCountdown(8, () => {
+            if (isRunning) runCycle();
+          });
+        });
+      });
+    }
+
+    function runCountdown(seconds, callback) {
+      let current = seconds;
+      const countEl = document.getElementById('timer-count');
+      countEl.textContent = current;
+
+      breathInterval = setInterval(() => {
+        current--;
+        if (current > 0) {
+          countEl.textContent = current;
+        } else {
+          clearInterval(breathInterval);
+          callback();
+        }
+      }, 1000);
+    }
+
+    function stopBreathing() {
+      isRunning = false;
+      clearInterval(breathInterval);
+      document.getElementById('phase-label').textContent = "Ready";
+      document.getElementById('timer-count').textContent = "Press Start";
+      const circle = document.getElementById('bCircle');
+      circle.style.transform = "scale(1)";
+      circle.style.background = "#4a7c59";
+    }
+  </script>
+</div>
